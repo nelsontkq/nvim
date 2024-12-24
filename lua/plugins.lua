@@ -5,8 +5,7 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
-require("lazy").setup({ -- File explorer
-{
+require("lazy").setup({{
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
     config = function()
@@ -22,7 +21,7 @@ require("lazy").setup({ -- File explorer
             }
         })
     end
-}, {
+}, { -- File explorer
     "nvim-tree/nvim-tree.lua",
     dependencies = {"nvim-tree/nvim-web-devicons"},
     opts = {
@@ -35,12 +34,11 @@ require("lazy").setup({ -- File explorer
 }, {
     "nvim-tree/nvim-web-devicons",
     config = function()
-        require("nvim-web-devicons").setup {
+        require("nvim-web-devicons").setup({
             default = true
-        }
+        })
     end
-}, -- Statusline
-{
+}, { -- Statusline
     "nvim-lualine/lualine.nvim",
     dependencies = {"nvim-tree/nvim-web-devicons"},
     config = function()
@@ -50,8 +48,7 @@ require("lazy").setup({ -- File explorer
             }
         }
     end
-}, -- Bufferline
-{
+}, { -- Bufferline
     'romgrk/barbar.nvim',
     dependencies = {'lewis6991/gitsigns.nvim', 'nvim-tree/nvim-web-devicons'},
     init = function()
@@ -79,46 +76,28 @@ require("lazy").setup({ -- File explorer
             }
         }
     },
-    version = '^1.0.0' -- optional: only update when a new 1.x version is released
-}, -- LSP configuration
-{
+    version = '^1.0.0'
+}, { -- LSP configuration
     "williamboman/mason.nvim",
-    config = true
-}, {
-    "williamboman/mason-lspconfig.nvim",
-    dependencies = {"williamboman/mason.nvim", "neovim/nvim-lspconfig"},
+    cmd = {"Mason", "MasonInstall", "MasonInstallAll", "MasonUpdate"},
     config = function()
-        require("mason-lspconfig").setup()
-        local lspconfig = require("lspconfig")
-        lspconfig.lua_ls.setup({
-
-            settings = {
-                Lua = {
-                    runtime = {
-                        version = 'LuaJIT'
-                    },
-                    diagnostics = {
-                        -- Get the language server to recognize the `vim` global
-                        globals = {'vim', 'require'}
-                    },
-                    workspace = {
-                        -- Make the server aware of Neovim runtime files
-                        library = vim.api.nvim_get_runtime_file("", true)
-                    },
-                    telemetry = {
-                        enable = false
-                    }
-                }
-            }
+        require("mason").setup({
+            max_concurrent_installers = 12
         })
     end
 }, {
-    "neovim/nvim-lspconfig",
+    "williamboman/mason-lspconfig.nvim",
+    dependencies = {"neovim/nvim-lspconfig"},
     config = function()
-        -- Additional LSP configs if needed
+        require('mason-lspconfig').setup()
+        require('mason-lspconfig').setup_handlers {function(server_name) -- default handler (optional)
+            if server_name == "tsserver" then
+                server_name = "ts_ls"
+            end
+            require("lspconfig")[server_name].setup {}
+        end}
     end
-}, -- Fuzzy Finder
-{
+}, { -- Fuzzy Finder
     "nvim-telescope/telescope.nvim",
     dependencies = {"nvim-lua/plenary.nvim", "nvim-tree/nvim-web-devicons"},
     config = function()
@@ -131,8 +110,7 @@ require("lazy").setup({ -- File explorer
             }
         }
     end
-}, -- which key
-{
+}, { -- which key
     "folke/which-key.nvim",
     event = "VeryLazy",
     opts = {},

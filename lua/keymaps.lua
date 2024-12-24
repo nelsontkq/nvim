@@ -75,7 +75,6 @@ function M.setup()
     map('n', '<leader>rr', '<Cmd>lua vim.lsp.buf.rename()<CR>', opts)
     map('n', '<leader>.', '<Cmd>lua vim.lsp.buf.code_action()<CR>', opts)
 
-
     -- Telescope keybindings
     map('n', '<leader>ff', '<Cmd>Telescope find_files<CR>', opts)
     map('n', '<leader>fw', '<Cmd>Telescope live_grep<CR>', opts)
