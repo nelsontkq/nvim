@@ -90,12 +90,25 @@ require("lazy").setup({{
     dependencies = {"neovim/nvim-lspconfig"},
     config = function()
         require('mason-lspconfig').setup()
-        require('mason-lspconfig').setup_handlers {function(server_name) -- default handler (optional)
-            if server_name == "tsserver" then
-                server_name = "ts_ls"
+        require('mason-lspconfig').setup_handlers {
+            ['lua_ls'] = function()
+                require('lspconfig').lua_ls.setup {
+                    settings = {
+                        Lua = {
+                            diagnostics = {
+                                globals = {'vim'}
+                            }
+                        }
+                    }
+                }
+            end,
+            function(server_name)
+                if server_name == "tsserver" then
+                    server_name = "ts_ls"
+                end
+                require("lspconfig")[server_name].setup {}
             end
-            require("lspconfig")[server_name].setup {}
-        end}
+        }
     end
 }, { -- Fuzzy Finder
     "nvim-telescope/telescope.nvim",
@@ -115,4 +128,15 @@ require("lazy").setup({{
     event = "VeryLazy",
     opts = {},
     keys = {"<leader>", "<c-w>", '"', "'", "`", "c", "v", "g"}
+}, {
+    "scottmckendry/cyberdream.nvim",
+    lazy = false,
+    priority = 1000,
+    config = function()
+        require('cyberdream.nvim').setup({
+            theme = {
+                variant = "light"
+            }
+        })
+    end
 }})
