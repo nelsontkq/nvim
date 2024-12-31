@@ -1,18 +1,18 @@
 -- Ensure lazy.nvim is installed
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
-    vim.fn.system({"git", "clone", "--filter=blob:none", "https://github.com/folke/lazy.nvim.git", lazypath})
+    vim.fn.system({ "git", "clone", "--filter=blob:none", "https://github.com/folke/lazy.nvim.git", lazypath })
 end
 vim.opt.rtp:prepend(lazypath)
 
-require("lazy").setup({{
+require("lazy").setup({ {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
     config = function()
         local configs = require("nvim-treesitter.configs")
 
         configs.setup({
-            ensure_installed = {"lua", "vim", "vimdoc"},
+            ensure_installed = { "lua", "vim", "vimdoc" },
             highlight = {
                 enable = true
             },
@@ -23,14 +23,16 @@ require("lazy").setup({{
     end
 }, { -- File explorer
     "nvim-tree/nvim-tree.lua",
-    dependencies = {"nvim-tree/nvim-web-devicons"},
-    opts = {
-        filters = {
-            dotfiles = false
-        },
-        disable_netrw = true,
-        hijack_cursor = true
-    }
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    config = function()
+        require("config.tree").setup({
+            filters = {
+                dotfiles = false
+            },
+            disable_netrw = true,
+            hijack_cursor = true
+        })
+    end
 }, {
     "nvim-tree/nvim-web-devicons",
     config = function()
@@ -40,17 +42,18 @@ require("lazy").setup({{
     end
 }, { -- Statusline
     "nvim-lualine/lualine.nvim",
-    dependencies = {"nvim-tree/nvim-web-devicons"},
+    dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
         require("lualine").setup {
             options = {
-                theme = 'auto'
+                theme = 'auto',
+                globalstatus = true
             }
         }
     end
 }, { -- Bufferline
     'romgrk/barbar.nvim',
-    dependencies = {'lewis6991/gitsigns.nvim', 'nvim-tree/nvim-web-devicons'},
+    dependencies = { 'lewis6991/gitsigns.nvim', 'nvim-tree/nvim-web-devicons' },
     init = function()
         vim.g.barbar_auto_setup = false
     end,
@@ -79,7 +82,7 @@ require("lazy").setup({{
     version = '^1.0.0'
 }, { -- LSP configuration
     "williamboman/mason.nvim",
-    cmd = {"Mason", "MasonInstall", "MasonInstallAll", "MasonUpdate"},
+    cmd = { "Mason", "MasonInstall", "MasonInstallAll", "MasonUpdate" },
     config = function()
         require("mason").setup({
             max_concurrent_installers = 12
@@ -87,7 +90,7 @@ require("lazy").setup({{
     end
 }, {
     "williamboman/mason-lspconfig.nvim",
-    dependencies = {"neovim/nvim-lspconfig"},
+    dependencies = { "neovim/nvim-lspconfig" },
     config = function()
         require('mason-lspconfig').setup()
         require('mason-lspconfig').setup_handlers {
@@ -96,7 +99,7 @@ require("lazy").setup({{
                     settings = {
                         Lua = {
                             diagnostics = {
-                                globals = {'vim'}
+                                globals = { 'vim' }
                             }
                         }
                     }
@@ -112,11 +115,11 @@ require("lazy").setup({{
     end
 }, { -- Fuzzy Finder
     "nvim-telescope/telescope.nvim",
-    dependencies = {"nvim-lua/plenary.nvim", "nvim-tree/nvim-web-devicons"},
+    dependencies = { "nvim-lua/plenary.nvim", "nvim-tree/nvim-web-devicons" },
     config = function()
         require('telescope').setup {
             defaults = {
-                file_ignore_patterns = {"node_modules", ".git", '.local', '.meteor', '*.js.map'},
+                file_ignore_patterns = { "node_modules", ".git", '.local', '.meteor', '*.js.map' },
                 layout_config = {
                     prompt_position = "top"
                 }
@@ -126,17 +129,16 @@ require("lazy").setup({{
 }, { -- which key
     "folke/which-key.nvim",
     event = "VeryLazy",
-    opts = {},
-    keys = {"<leader>", "<c-w>", '"', "'", "`", "c", "v", "g"}
+    keys = { "<leader>", "<c-w>", '"', "'", "`", "c", "v", "g" }
 }, {
     "scottmckendry/cyberdream.nvim",
     lazy = false,
     priority = 1000,
     config = function()
-        require('cyberdream.nvim').setup({
-            theme = {
-                variant = "light"
-            }
+        require("cyberdream").setup({
+            transparent = true
         })
     end
-}})
+}, {
+    'vim-test/vim-test'
+} })
