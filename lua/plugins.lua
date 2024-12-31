@@ -24,15 +24,14 @@ require("lazy").setup({ {
 }, { -- File explorer
     "nvim-tree/nvim-tree.lua",
     dependencies = { "nvim-tree/nvim-web-devicons" },
-    config = function()
-        require("config.tree").setup({
-            filters = {
-                dotfiles = false
-            },
-            disable_netrw = true,
-            hijack_cursor = true
-        })
-    end
+    opts = {
+        filters = {
+            dotfiles = true,
+            custom = {
+                "node_modules", "target",
+            }
+        }
+    }
 }, {
     "nvim-tree/nvim-web-devicons",
     config = function()
@@ -139,6 +138,23 @@ require("lazy").setup({ {
             transparent = true
         })
     end
-}, {
-    'vim-test/vim-test'
+}, { -- session
+    'rmagatti/auto-session',
+    lazy = false,
+    config = function()
+        require('auto-session').setup {
+            auto_restore_enabled = true,
+            auto_save_enabled = true,
+            auto_session_enable_last_session = true,
+            auto_session_root_dir = vim.fn.stdpath('data') .. '/sessions/',
+            auto_session_enabled = true,
+            auto_save_interval = 30000,
+            pre_save_cmds = {
+                'NvimTreeClose',
+                'tabdo BarbarDisable',
+            }
+        }
+        vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
+    end
 } })
+
