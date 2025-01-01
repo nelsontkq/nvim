@@ -24,14 +24,16 @@ require("lazy").setup({ {
 }, { -- File explorer
     "nvim-tree/nvim-tree.lua",
     dependencies = { "nvim-tree/nvim-web-devicons" },
-    opts = {
-        filters = {
-            dotfiles = true,
-            custom = {
-                "node_modules", "target",
+    config = function(opts)
+        require('config.tree').setup({
+            filters = {
+                dotfiles = false,
+                custom = {
+                    "node_modules", "target", ".git", ".local", ".meteor"
+                }
             }
-        }
-    }
+        })        
+    end
 }, {
     "nvim-tree/nvim-web-devicons",
     config = function()
