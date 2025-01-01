@@ -32,7 +32,7 @@ require("lazy").setup({ {
                     "node_modules", "target", ".git", ".local", ".meteor"
                 }
             }
-        })        
+        })
     end
 }, {
     "nvim-tree/nvim-web-devicons",
@@ -154,9 +154,14 @@ require("lazy").setup({ {
             pre_save_cmds = {
                 'NvimTreeClose',
                 'tabdo BarbarDisable',
+                function()
+                    -- toggle term if it is open
+                    if vim.fn.bufwinnr('term://') ~= -1 then
+                        vim.cmd('TermClose')
+                    end
+                end
             }
         }
         vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
     end
 } })
-
