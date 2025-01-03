@@ -17,7 +17,7 @@ local default_plugins = {{
             enable = true
         }
     },
-    config = function(opts)
+    config = function(_, opts)
         require("nvim-treesitter.configs").setup(opts)
     end
 }, { -- File explorer
@@ -29,7 +29,7 @@ local default_plugins = {{
             custom = {"node_modules", "target", ".git", ".local", ".meteor"}
         }
     },
-    config = function(opts)
+    config = function(_, opts)
         require('config.tree').setup(opts)
     end
 }, {
@@ -84,7 +84,7 @@ local default_plugins = {{
 }, {
     "williamboman/mason-lspconfig.nvim",
     dependencies = {"neovim/nvim-lspconfig"},
-    config = function(opts)
+    config = function(_, opts)
         require('mason-lspconfig').setup(opts)
         require('mason-lspconfig').setup_handlers {
             ['lua_ls'] = function()
@@ -103,7 +103,7 @@ local default_plugins = {{
                     server_name = "ts_ls"
                 end
                 require("lspconfig")[server_name].setup {}
-            end
+            end,
         }
     end
 }, { -- Fuzzy Finder
@@ -145,7 +145,7 @@ local default_plugins = {{
             end
         end}
     },
-    config = function(opts)
+    config = function(_, opts)
         require('auto-session').setup(opts)
         vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
     end
