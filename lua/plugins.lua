@@ -1,15 +1,22 @@
 -- Ensure lazy.nvim is installed
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
-    vim.fn.system({"git", "clone", "--filter=blob:none", "https://github.com/folke/lazy.nvim.git", lazypath})
+    vim.fn.system({ "git", "clone", "--filter=blob:none", "https://github.com/folke/lazy.nvim.git", lazypath })
 end
 vim.opt.rtp:prepend(lazypath)
 
-local default_plugins = {{
+local ok, local_settings = pcall(require, "config.local_settings")
+if not ok then
+    local_settings = {}
+end
+
+local file_ignore_globs = local_settings.file_ignore_globs or { "**/node_modules", "./.git" }
+
+local default_plugins = { {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
     opts = {
-        ensure_installed = {"lua", "vim", "vimdoc"},
+        ensure_installed = { "lua", "vim", "vimdoc" },
         highlight = {
             enable = true
         },
@@ -22,11 +29,14 @@ local default_plugins = {{
     end
 }, { -- File explorer
     "nvim-tree/nvim-tree.lua",
-    dependencies = {"nvim-tree/nvim-web-devicons"},
+    dependencies = { "nvim-tree/nvim-web-devicons" },
     opts = {
         filters = {
             dotfiles = false,
-            custom = {"node_modules", "target", ".git", ".local", ".meteor"}
+            custom = { "node_modules", "target", ".git", ".local", ".meteor" }
+        },
+        update_focused_file = {
+            enable = true,
         }
     },
     config = function(_, opts)
@@ -39,7 +49,7 @@ local default_plugins = {{
     }
 }, { -- Statusline
     "nvim-lualine/lualine.nvim",
-    dependencies = {"nvim-tree/nvim-web-devicons"},
+    dependencies = { "nvim-tree/nvim-web-devicons" },
     opts = {
         options = {
             theme = 'auto',
@@ -48,7 +58,7 @@ local default_plugins = {{
     }
 }, { -- Bufferline
     'romgrk/barbar.nvim',
-    dependencies = {'lewis6991/gitsigns.nvim', 'nvim-tree/nvim-web-devicons'},
+    dependencies = { 'lewis6991/gitsigns.nvim', 'nvim-tree/nvim-web-devicons' },
     init = function()
         vim.g.barbar_auto_setup = false
     end,
@@ -77,13 +87,13 @@ local default_plugins = {{
     version = '^1.0.0'
 }, { -- LSP configuration
     "williamboman/mason.nvim",
-    cmd = {"Mason", "MasonInstall", "MasonInstallAll", "MasonUpdate"},
+    cmd = { "Mason", "MasonInstall", "MasonInstallAll", "MasonUpdate" },
     opts = {
         max_concurrent_installers = 12
     }
 }, {
     "williamboman/mason-lspconfig.nvim",
-    dependencies = {"neovim/nvim-lspconfig"},
+    dependencies = { "neovim/nvim-lspconfig" },
     config = function(_, opts)
         require('mason-lspconfig').setup(opts)
         require('mason-lspconfig').setup_handlers {
@@ -92,7 +102,7 @@ local default_plugins = {{
                     settings = {
                         Lua = {
                             diagnostics = {
-                                globals = {'vim'}
+                                globals = { 'vim' }
                             }
                         }
                     }
@@ -108,19 +118,36 @@ local default_plugins = {{
     end
 }, { -- Fuzzy Finder
     "nvim-telescope/telescope.nvim",
-    dependencies = {"nvim-lua/plenary.nvim", "nvim-tree/nvim-web-devicons"},
+    dependencies = { "nvim-lua/plenary.nvim", "nvim-tree/nvim-web-devicons" },
     opts = {
         defaults = {
-            file_ignore_patterns = {"node_modules", ".git", '.local', '.meteor', '*.js.map'},
+            file_ignore_patterns = file_ignore_globs,
+            vimgrep_arguments = {
+                "rg",
+                "--color=never",
+                "--no-heading",
+                "--with-filename",
+                "--line-number",
+                "--column",
+                "--smart-case",
+                "--trim",
+                "--sortr=modified"
+            },
             layout_config = {
                 prompt_position = "top"
             }
+        },
+        pickers = {
+            find_files = {
+                find_command = { "fd", "--type", "f", "--strip-cwd-prefix", }
+            },
+
         }
     }
 }, { -- which key
     "folke/which-key.nvim",
     event = "VeryLazy",
-    keys = {"<leader>", "<c-w>", '"', "'", "`", "c", "v", "g"}
+    keys = { "<leader>", "<c-w>", '"', "'", "`", "c", "v", "g" }
 }, {
     "scottmckendry/cyberdream.nvim",
     lazy = false,
@@ -128,32 +155,24 @@ local default_plugins = {{
     opts = {
         transparent = true
     }
-}, { -- session
-    'rmagatti/auto-session',
-    lazy = false,
-    opts = {
-        auto_restore_enabled = true,
-        auto_save_enabled = true,
-        auto_session_enable_last_session = true,
-        auto_session_root_dir = vim.fn.stdpath('data') .. '/sessions/',
-        auto_session_enabled = true,
-        auto_save_interval = 30000,
-        pre_save_cmds = {'NvimTreeClose', 'tabdo BarbarDisable', function()
-            -- toggle term if it is open
-            if vim.fn.bufwinnr('term://') ~= -1 then
-                vim.cmd('TermClose')
-            end
-        end}
-    },
-    config = function(_, opts)
-        require('auto-session').setup(opts)
-        vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
-    end
-}}
+} }
 
-local ok, local_plugins = pcall(require, "config.local_plugins")
-if ok and type(local_plugins) == "table" then
-    default_plugins = vim.tbl_deep_extend("force", default_plugins, local_plugins)
+if type(local_settings.plugins) == "table" then
+    for _, plugin in ipairs(local_settings.plugins) do
+        if type(plugin) == 'string' then
+            if not vim.tbl_contains(default_plugins, plugin) then
+                table.insert(default_plugins, { plugin })
+            end
+        elseif type(plugin) == 'table' then
+            local name = plugin[1]
+            for _, p in ipairs(default_plugins) do
+                if p[1] == name then
+                    p = vim.tbl_deep_extend("force", p, plugin)
+                    break
+                end
+            end
+        end
+    end
 end
 
 require("lazy").setup(default_plugins)
