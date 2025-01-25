@@ -37,7 +37,23 @@ local default_plugins = { {
         },
         update_focused_file = {
             enable = true,
-        }
+        },
+        view = {
+            adaptive_size = true,
+            width = {
+                min = 30,
+                max = 60,
+            }
+        },
+        renderer = {
+            group_empty = true,
+            indent_width = 2,
+            indent_markers = {
+                enable = true,
+            },
+
+            symlink_destination = false,
+        },
     },
     config = function(_, opts)
         require('config.tree').setup(opts)
