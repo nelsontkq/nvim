@@ -16,6 +16,7 @@ vim.opt.shiftwidth = 4
 vim.opt.tabstop = 4
 vim.opt.smartindent = true
 vim.opt.swapfile = false
+vim.opt.clipboard:append('unnamedplus')
 
 require('plugins')
 require('term')
